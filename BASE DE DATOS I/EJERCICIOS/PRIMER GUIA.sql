@@ -115,6 +115,38 @@ WHERE
 df.pre_unitario NOT BETWEEN 100 AND 500
 AND MONTH(v.fec_nac) IN (2,4,5,9)
 
+-- 9 
+
+SELECT DISTINCT
+f.nro_factura 'Factrura',
+a.descripcion 'Nombre',
+df.cantidad 'Cantidad',
+(df.pre_unitario * df.cantidad) 'Importe'
+FROM FACTURAS f
+JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
+JOIN articulos a ON df.cod_articulo = a.cod_articulo
+JOIN vendedores v on v.cod_vendedor = f.cod_vendedor
+WHERE 
+f.nro_factura NOT BETWEEN 17 AND 136
+ORDER BY 2,3
+
+-- 10
+
+SELECT 
+a.descripcion 'Nombre',
+a.pre_unitario 'Precio actual',
+df.pre_unitario 'Precio de venta',
+a.observaciones 'Observaciones',
+(((a.pre_unitario - df.pre_unitario)/a.pre_unitario)/100) + '%' 'Porcentaje de incremento'
+FROM FACTURAS f
+JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
+JOIN articulos a ON df.cod_articulo = a.cod_articulo
+JOIN vendedores v on v.cod_vendedor = f.cod_vendedor
+WHERE 
+YEAR(f.fecha) = 2021
+AND df.pre_unitario < 300
+AND YEAR(getdate()) - YEAR(v.fec_nac) < 35
+
 -- VENDEDORES QUE HAN VENDIDO MÁS DE 25 VENTAS EN 2024
 
 Select v.nom_vendedor 'Nombre', v.ape_vendedor 'Apellido', count(*) 'Total de ventas'
