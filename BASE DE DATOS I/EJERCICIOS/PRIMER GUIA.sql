@@ -100,7 +100,20 @@ AND a.descripcion NOT LIKE '%[h,j,m]%'
 
 -- 8
 
-
+SELECT 
+a.descripcion 'Nombre',
+a.pre_unitario 'Precio actual',
+df.pre_unitario 'Precio de venta',
+a.observaciones 'Observaciones',
+a.stock 'Stock',
+a.stock_minimo 'Stock mínimo'
+FROM FACTURAS f
+JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
+JOIN articulos a ON df.cod_articulo = a.cod_articulo
+JOIN vendedores v on v.cod_vendedor = f.cod_vendedor
+WHERE 
+df.pre_unitario NOT BETWEEN 100 AND 500
+AND MONTH(v.fec_nac) IN (2,4,5,9)
 
 -- VENDEDORES QUE HAN VENDIDO MÁS DE 25 VENTAS EN 2024
 
