@@ -1,3 +1,5 @@
+-- 1
+
 SELECT 
 f.nro_factura 'Numero de factura',
 c.nom_cliente + ' ' + c.ape_cliente 'Nombre del cliente',
@@ -9,7 +11,7 @@ JOIN vendedores v on v.cod_vendedor = f.cod_vendedor
 WHERE year(f.fecha) in (2010, 2017, 2018, 2022) 
 order by f.fecha asc
 
---
+-- 2
 
 SELECT 
 v.nom_vendedor + ' ' + v.ape_vendedor 'Nombre del vendedor',
@@ -19,7 +21,7 @@ FROM vendedores v
 JOIN facturas f ON v.cod_vendedor = f.cod_vendedor
 WHERE YEAR(f.fecha) = YEAR(getdate()) 
 
--- 
+-- 3
 
 SELECT 
 f.nro_factura 'Numero de factura',
@@ -51,6 +53,55 @@ OR (c.[e-mail] is not null or c.nro_tel is not null))
 AND ((year(getdate()) - year(v.fec_nac) >= 50 
 OR LEN(b.barrio) >= 5))
 
+-- 5
+
+SELECT 
+v.nom_vendedor + ' ' + v.ape_vendedor 'Nombre del vendedor',
+CAST(v.fec_nac AS DATE) 'Fecha de nacimiento',
+CAST(f.fecha AS DATE)
+FROM VENDEDORES V
+JOIN facturas f ON v.cod_vendedor = f.cod_vendedor
+WHERE MONTH(V.fec_nac) > (MONTH(GETDATE())+1)
+AND MONTH(V.fec_nac) BETWEEN 1990 AND 1999
+AND MONTH(f.fecha) = (MONTH(GETDATE())-1)
+
+-- 6
+
+SELECT 
+a.descripcion 'Nombre',
+a.pre_unitario 'Precio actual',
+df.pre_unitario 'Precio de venta',
+a.observaciones 'Observaciones',
+a.stock 'Stock',
+a.stock_minimo 'Stock mínimo'
+FROM FACTURAS f
+JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
+JOIN articulos a ON df.cod_articulo = a.cod_articulo
+WHERE 
+DAY(f.fecha) BETWEEN 1 AND 10
+AND YEAR(f.fecha) = YEAR(getdate())
+AND df.pre_unitario < a.pre_unitario
+AND a.observaciones is not null
+AND a.stock_minimo <= a.stock
+
+-- 7
+
+SELECT 
+a.descripcion 'Nombre',
+a.pre_unitario 'Precio actual',
+a.observaciones 'Observaciones',
+a.stock_minimo 'Stock mínimo'
+FROM articulos a
+WHERE 
+a.pre_unitario < 20
+AND a.stock_minimo > 10
+AND a.descripcion NOT LIKE '[p,r,v]%'
+AND a.descripcion NOT LIKE '%[h,j,m]%'
+
+-- 8
+
+
+
 -- VENDEDORES QUE HAN VENDIDO MÁS DE 25 VENTAS EN 2024
 
 Select v.nom_vendedor 'Nombre', v.ape_vendedor 'Apellido', count(*) 'Total de ventas'
@@ -61,16 +112,6 @@ GROUP BY v.nom_vendedor, v.ape_vendedor
 HAVING COUNT(*) > 25
 
 -- 5 artículos más vendidos
-
--- 
-
-SELECT SUM(df.cantidad), a.descripcion 
-From facturas f 
-JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
-JOIN articulos a on df.cod_articulo = a.cod_articulo
-WHERE YEAR(f.fecha) = 2024
-GROUP BY a.descripcion, a.stock_minimo
-HAVING SUM(df.cantidad) < a.stock_minimo
 
 --
 Select c.nom_cliente 'Nombre', count (*) 'Compras', sum(df.cantidad * df.pre_unitario) 'Importe'
