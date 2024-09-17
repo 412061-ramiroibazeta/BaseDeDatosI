@@ -1,12 +1,12 @@
-------------------------------------------------------EJERCICIOS 1.2.2 A 1.2.10 - GUÕA 1-------------------------------------------------------------------------
+------------------------------------------------------EJERCICIOS 1.2.2 A 1.2.10 - GU√çA 1-------------------------------------------------------------------------
 -- RAMIRO IBAZETA
 
 
 --1.2.2
---Por cada factura emitida mostrar la cantidad total de artÌculos vendidos 
---(suma de las cantidades vendidas), la cantidad Ìtems que tiene cada factura 
+--Por cada factura emitida mostrar la cantidad total de art√≠culos vendidos 
+--(suma de las cantidades vendidas), la cantidad √≠tems que tiene cada factura 
 --en el detalle (cantidad de registros de detalles) y el Importe total de la 
---facturaciÛn de este aÒo.
+--facturaci√≥n de este a√±o.
 Select f.nro_factura 'Nro. Factura', 
 SUM(df.cantidad) 'Cant. Items', 
 COUNT(df.nro_factura) 'Cant. Detalles', 
@@ -17,7 +17,7 @@ WHERE YEAR(f.fecha) = YEAR(GETDATE())
 GROUP BY f.nro_factura
 
 --1.2.3
---Se quiere saber en este negocio, cu·nto se factura: 
+--Se quiere saber en este negocio, cu√°nto se factura: 
 ---a. Diariamente 
 Select CONVERT(Varchar, f.fecha, 103) 'Fecha',  
 SUM(df.cantidad * df.pre_unitario) 'Importe total diario'
@@ -26,16 +26,16 @@ JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
 GROUP BY CONVERT(Varchar, f.fecha, 103)
 ORDER BY 1
  
----b. Mensualmente -- En esta consigna considero tambien necesario separar por aÒo para que los datos sean m·s certeros
+---b. Mensualmente -- En esta consigna considero tambien necesario separar por a√±o para que los datos sean m√°s certeros
 Select MONTH(f.fecha) 'MES',
-YEAR(f.fecha) 'A—O',  
+YEAR(f.fecha) 'A√ëO',  
 SUM(df.cantidad * df.pre_unitario) 'Importe total mensual'
 FROM Facturas f 
 JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
 GROUP BY MONTH(f.fecha), YEAR(f.fecha)
 ORDER BY 2,1  
 
---- En caso de que solo se quisiera distinguir por mes y no por mes y aÒo:
+--- En caso de que solo se quisiera distinguir por mes y no por mes y a√±o:
 Select MONTH(f.fecha) 'MES',
 SUM(df.cantidad * df.pre_unitario) 'Importe total mensual'
 FROM Facturas f 
@@ -44,7 +44,7 @@ GROUP BY MONTH(f.fecha)
 ORDER BY 1 
 
 ---c. Anualmente  
-Select YEAR(f.fecha) 'A—O',
+Select YEAR(f.fecha) 'A√ëO',
 SUM(df.cantidad * df.pre_unitario) 'Importe total anual'
 FROM Facturas f 
 JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
@@ -64,12 +64,12 @@ ORDER BY 2 DESC, 1
 
 --1.2.5
 --Se quiere saber la cantidad y el importe promedio vendido por fecha y 
---cliente, paraa cÛdigos de vendedor superiores a 2. Ordene por fecha y 
+--cliente, paraa c√≥digos de vendedor superiores a 2. Ordene por fecha y 
 --cliente.
 Select CONVERT(Varchar, f.fecha, 103) 'Fecha',
 f.cod_cliente 'Codigo cliente',  
 AVG(df.cantidad * df.pre_unitario) 'Importe promedio',
-COUNT(f.nro_factura) 'Cantidad de facturas'
+SUM(df.cantidad) 'Cantidad'
 FROM Facturas f 
 JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
 WHERE f.cod_vendedor > 2
@@ -78,8 +78,8 @@ ORDER BY 1, 2
 
 --1.2.6
 --Se quiere saber el importe promedio vendido y la cantidad total vendida(ASUMO QUE ES LA SUMA DE CANTIDADES POR DETALLE) por 
---fecha y artÌculo (AQUÕ ENTIENDO QUE ME PIDE QUE LO HAGA POR EL NOMBRE DE ARTÕCULO), para cÛdigos de cliente inferior a 3. Ordene por fecha y 
---artÌculo.
+--fecha y art√≠culo (AQU√ç ENTIENDO QUE ME PIDE QUE LO HAGA POR EL NOMBRE DE ART√çCULO), para c√≥digos de cliente inferior a 3. Ordene por fecha y 
+--art√≠culo.
 -- EN CANTIDAD TOTAL ENTIENDO QUE PIDE LA SUMA DE LAS CANTIDADES DE LOS DETALLES_FACTURA
 Select CONVERT(Varchar, f.fecha, 103) 'Fecha',
 a.descripcion 'Articulo',  
@@ -94,7 +94,7 @@ ORDER BY 1, 2
 
 --1.2.7
 --Listar la cantidad total vendida, el importe total vendido y el importe 
---promedio total vendido por n˙mero de factura, siempre que la fecha no 
+--promedio total vendido por n√∫mero de factura, siempre que la fecha no 
 --oscile entre el 13/2/2007 y el 13/7/2010.
 SET DATEFORMAT DMY
 Select f.nro_factura 'Nro. Factura', 
@@ -108,12 +108,12 @@ GROUP BY f.nro_factura
 ORDER BY f.nro_factura
 
 --1.2.8
---Emitir un reporte que muestre la fecha de la primer y ˙ltima venta y el 
+--Emitir un reporte que muestre la fecha de la primer y √∫ltima venta y el 
 --importe comprado por cliente. Rotule como CLIENTE, PRIMER VENTA, 
---⁄LTIMA VENTA, IMPORTE. 
+--√öLTIMA VENTA, IMPORTE. 
 Select c.nom_cliente + ' ' + c.ape_cliente 'CLIENTE',
 CONVERT(VARCHAR, MIN(f.fecha), 103) AS 'PRIMER VENTA', 
-CONVERT(VARCHAR, MAX(f.fecha), 103) AS '⁄LTIMA VENTA',
+CONVERT(VARCHAR, MAX(f.fecha), 103) AS '√öLTIMA VENTA',
 SUM(df.cantidad * df.pre_unitario) 'IMPORTE'
 FROM Facturas f 
 JOIN clientes c ON f.cod_cliente = c.cod_cliente
@@ -123,9 +123,9 @@ ORDER BY 1
 
 --1.2.9
 --Se quiere saber el importe total vendido, la cantidad total vendida y el precio 
---unitario promedio por cliente y artÌculo (AQUI ENTIENDO QUE ME PIDE POR NOMBRE DE ARTICULO), siempre que el nombre del cliente 
---comience con letras que van de la ìaî a la ìmî. Ordene por cliente, precio 
---unitario promedio en forma descendente y artÌculo. Rotule como IMPORTE 
+--unitario promedio por cliente y art√≠culo (AQUI ENTIENDO QUE ME PIDE POR NOMBRE DE ARTICULO), siempre que el nombre del cliente 
+--comience con letras que van de la ‚Äúa‚Äù a la ‚Äúm‚Äù. Ordene por cliente, precio 
+--unitario promedio en forma descendente y art√≠culo. Rotule como IMPORTE 
 --TOTAL, CANTIDAD TOTAL, PRECIO PROMEDIO.
 -- ESTA RESOLUCION ES ACORDE A LO SOLICITADO POR LA CONSIGNA Y SU REDACCION QUE AUNQUE DA CUATRO ROTULACIONES PIDE 5.
 SELECT c.nom_cliente + ' ' + c.ape_cliente 'CLIENTE',
@@ -154,8 +154,8 @@ GROUP BY c.nom_cliente + ' ' + c.ape_cliente
 ORDER BY 1 DESC,4 DESC
 
 -- 1.2.10
---Se quiere saber la cantidad de facturas y la fecha la primer y ˙ltima factura 
---por vendedor y cliente, para n˙meros de factura que oscilan entre 5 y 30. 
+--Se quiere saber la cantidad de facturas y la fecha la primer y √∫ltima factura 
+--por vendedor y cliente, para n√∫meros de factura que oscilan entre 5 y 30. 
 --Ordene por vendedor, cantidad de ventas en forma descendente y cliente. 
 SELECT v.nom_vendedor + ' ' + v.ape_vendedor 'Vendedor',
 c.nom_cliente + ' ' + c.ape_cliente 'Cliente',
