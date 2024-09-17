@@ -10,7 +10,7 @@
 Select f.nro_factura 'Nro. Factura', 
 SUM(df.cantidad) 'Cant. Items', 
 COUNT(df.nro_factura) 'Cant. Detalles', 
-SUM(df.cantidad * df.pre_unitario) 'Importe Diario'
+SUM(df.cantidad * df.pre_unitario) 'Importe'
 FROM Facturas f 
 JOIN detalle_facturas df ON f.nro_factura = df.nro_factura
 WHERE YEAR(f.fecha) = YEAR(GETDATE())
@@ -64,7 +64,7 @@ ORDER BY 2 DESC, 1
 
 --1.2.5
 --Se quiere saber la cantidad y el importe promedio vendido por fecha y 
---cliente, para códigos de vendedor superiores a 2. Ordene por fecha y 
+--cliente, paraa códigos de vendedor superiores a 2. Ordene por fecha y 
 --cliente.
 Select CONVERT(Varchar, f.fecha, 103) 'Fecha',
 f.cod_cliente 'Codigo cliente',  
