@@ -159,7 +159,7 @@ ORDER BY 1 DESC,4 DESC
 --Ordene por vendedor, cantidad de ventas en forma descendente y cliente. 
 SELECT v.nom_vendedor + ' ' + v.ape_vendedor 'Vendedor',
 c.nom_cliente + ' ' + c.ape_cliente 'Cliente',
-COUNT(f.nro_factura) 'Cantidad de ventas',
+COUNT(f.nro_factura) 'Cantidad de facturas',
 CONVERT(VARCHAR, MIN(f.fecha), 103) 'Primer factura', 
 CONVERT(VARCHAR, MAX(f.fecha), 103) 'Ultima factura'
 FROM Facturas f
