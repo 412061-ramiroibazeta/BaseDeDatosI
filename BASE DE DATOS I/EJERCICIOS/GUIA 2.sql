@@ -218,4 +218,37 @@ JOIN
 							
 WHERE YEAR(fecha)= YEAR(GETDATE())
 
---
+-- 3
+--Por cada artículo que se tiene a la venta, se quiere saber el importe
+--promedio vendido, la cantidad total vendida por artículo, para los casos
+--en que los números de factura no sean uno de los siguientes: 2, 10, 7, 13,
+--22 y que ese importe promedio sea inferior al importe promedio de ese
+--artículo. 
+Select a.cod_articulo 'Codigo',
+AVG(df.cantidad * df.pre_unitario) 'Importe promedio', 
+SUM(df.cantidad) 'Cantidad'
+FROM articulos a
+JOIN detalle_facturas df ON df.cod_articulo = a.cod_articulo
+WHERE df.nro_factura NOT IN(2,10,7,13,22)
+GROUP BY a.cod_articulo, a.descripcion
+HAVING AVG(df.cantidad * df.pre_unitario) > (Select AVG(df1.cantidad * df1.pre_unitario) from detalle_facturas df1 WHERE df1.cod_articulo = a.cod_articulo)
+
+--Listar la cantidad total vendida, el importe y promedio vendido por fecha,
+--siempre que esa cantidad sea superior al promedio de la cantidad global.
+--Rotule y ordene. 
+Select convert(varchar, f.fecha, 103) 'Fecha',
+Sum(df.cantidad) 'Cantidad Total',
+Sum(df.cantidad * df.pre_unitario) 'Importe',
+AVG(df.cantidad * df.pre_unitario) 'Promedio'
+FROM Facturas f 
+JOIN detalle_facturas df on df.nro_factura = f.nro_factura
+Group by convert(varchar, f.fecha, 103)
+HAVING SUM(df.cantidad) > (Select avg(cantidad) from detalle_facturas)
+
+--Se quiere saber el promedio del importe vendido y la fecha de la primer
+--venta por fecha y artículo para los casos en que las cantidades vendidas
+--oscilen entre 5 y 20 y que ese importe sea superior al importe promedio
+--de ese artículo. 
+
+
+
