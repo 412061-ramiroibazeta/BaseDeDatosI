@@ -306,11 +306,32 @@ RETURN CASE WHEN LOWER(@DIA) = 'domingo' THEN 0
 			ELSE 1 END
 END
 
---10. Programar funciones que permitan realizar las siguientes tareas:
 --a. Devolver una cadena de caracteres compuesto por los siguientes datos:
 --Apellido, Nombre, Telefono, Calle, Altura y Nombre del Barrio, de un
 --determinado cliente, que se puede informar por codigo de cliente o
 --email.
+
+CREATE FUNCTION FN_Obtener_Cliente
+    (@codigoCliente INT = NULL,
+    @email VARCHAR(100) = NULL)
+	RETURNS varchar (400)
+AS
+BEGIN
+declare @cliente varchar(400)
+    SELECT @cliente = CONCAT(
+            'Apellido: ', c.ape_cliente, ', ',
+            'Nombre: ', c.nom_cliente, ', ',
+            'Telefono: ', CAST(c.nro_tel AS VARCHAR(15)), ', ',
+            'Calle: ', c.calle, ', ',
+            'Altura: ', CAST(c.altura AS VARCHAR(10)), ', ',
+            'Barrio: ', b.barrio
+        )
+    FROM Clientes c
+    JOIN Barrios b ON c.cod_barrio = b.cod_barrio
+    WHERE (c.cod_cliente = @codigoCliente OR @cod_cliente IS NULL)
+      AND (c.[e-mail] = @email OR @email IS NULL)
+return @cliente
+END;
 
 
 --b. Devolver todos los artículos, se envía un parámetro que permite ordenar
@@ -318,7 +339,8 @@ END
 --descendente (‘D’).
 
 --c. Crear una función que devuelva el precio al que quedaría un artículo en
---caso de aplicar un porcentaje de aumento pasado por parámetro.
+--caso de aplicar un porcentaje de aumento pasado por parámetro.
+
 
 
 
