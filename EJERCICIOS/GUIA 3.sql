@@ -167,6 +167,159 @@ fec_nac = @fec_nac
 WHERE cod_vendedor = @cod_vendedor
 END
 
+--Mostrar los artículos cuyo precio sea mayor o igual que un valor que se
+--envía por parámetro.
+CREATE PROCEDURE SP_PRECIOS_ALTOS
+@PRECIO INT = 0
+AS
+SELECT descripcioN 'ARTICULO', pre_unitario 'PRECIO'
+FROM articulos 
+WHERE pre_unitario >= @PRECIO
+
+--b. Ingresar un artículo nuevo, verificando que la cantidad de stock que se
+--pasa por parámetro sea un valor mayor a 30 unidades y menor que 100.
+--Informar un error caso contrario.
+
+CREATE PROCEDURE SP_INGRESAR_ARTICULO
+@DESCRIPCION VARCHAR (50),
+@STOCK_MIN INT,
+@STOCK INT,
+@PRE_UNITARIO INT,
+@OBSERVACIONES VARCHAR(100)
+AS
+IF(@STOCK > 100 OR @STOCK < 30 OR @DESCRIPCION IS NULL OR @PRE_UNITARIO IS NULL)
+BEGIN 
+RAISERROR('DEBE INGRESAR UN STOCK ENTRE 30 Y 100', 16,1)
+END 
+ELSE 
+BEGIN
+INSERT INTO articulos (descripcion,stock_minimo, stock, pre_unitario, observaciones)
+values(@DESCRIPCION,@STOCK_MIN,@STOCK,@PRE_UNITARIO,@OBSERVACIONES)
+
+--c. Mostrar un mensaje informativo acerca de si hay que reponer o no stock
+--de un artículo cuyo código sea enviado por parámetro
+
+ALTER PROCEDURE SP_REPONER_ARTICULO
+@CODIGO INT
+AS
+IF EXISTS(SELECT cod_articulo FROM articulos WHERE stock < stock_minimo AND cod_articulo = @CODIGO)
+BEGIN SELECT 'DEBE REPONER EL ARTICULO' END
+ELSE BEGIN SELECT 'NO ES NECESARIO REPONER' END
+--TAMBIEN PODRÍA POR EJEMPLO PONER 1, ESO ME DEVOLVERÍA 1 SI LA CONDICIÓN SE CUMPLE Y EL EXISTS TRARÍA RESULTADOS
+EXEC SP_REPONER_ARTICULO 1
+
+--d. Actualizar el precio de los productos que tengan un precio menor a uno
+--ingresado por parámetro en un porcentaje que también se envíe por
+--parámetro. Si no se modifica ningún elemento informar dicha situación
+CREATE PROCEDURE SP_ACTUALIZAR_PRECIO
+@PRECIO INT, @PORCENTAJE DECIMAL(4,2)
+AS
+IF EXISTS(SELECT * FROM articulos WHERE pre_unitario < @PRECIO)
+BEGIN
+UPDATE articulos
+SET pre_unitario = pre_unitario * @PORCENTAJE
+WHERE pre_unitario < @PRECIO
+SELECT 'ARTICULOS ACTUALIZADOS' 
+END
+ELSE BEGIN
+SELECT 'NO HAY ARTICULOS PARA ACTUALIZAR'
+END
+
+--e. Mostrar el nombre del cliente al que se le realizó la primer venta en un parámetro de salida.
+CREATE PROCEDURE SP_PRIMER_VENTA
+@CLIENTE VARCHAR(50) OUTPUT
+AS
+SELECT TOP 1 @CLIENTE = C.nom_cliente + ' ' + C.ape_cliente
+FROM facturas F
+JOIN clientes C ON C.cod_cliente = F.cod_cliente
+ORDER BY fecha ASC
+
+DECLARE @C VARCHAR(50) 
+EXEC SP_PRIMER_VENTA @C OUTPUT
+SELECT @C 'CLIENTE 1ER VENTA'
+
+--f. Realizar un select que busque el artículo cuyo nombre empiece con un
+--valor enviado por parámetro y almacenar su nombre en un parámetro de
+--salida. En caso que haya varios artículos ocurrirá una excepción que
+--deberá ser manejada con try catch
+
+CREATE PROCEDURE SP_ARTICULO_NOMBRE
+@BUSQUEDA VARCHAR(50),
+@ARTICULO VARCHAR(50) OUTPUT
+AS
+DECLARE @CANTIDAD INT
+BEGIN TRY
+SELECT @CANTIDAD = COUNT(*) FROM articulos WHERE descripcion LIKE @BUSQUEDA + '%'
+IF(@CANTIDAD = 1)
+BEGIN SELECT @ARTICULO = DESCRIPCION FROM articulos WHERE descripcion LIKE @BUSQUEDA + '%' END
+ELSE BEGIN
+RAISERROR(CASE WHEN @CANTIDAD = 0 THEN 'NO COINCIDEN ARTICULOS'
+			ELSE 'COINCIDEN MAS DE 2 ARTICULOS', 16,1) 
+			END TRY
+BEGIN CATCH SELECT ERROR_MESSAGE() ERROR END CATCH
+-----------------------------------------------------------
+
+--Hora: una función que les devuelva la hora del sistema en el formato
+--HH:MM:SS (tipo carácter de 8).
+CREATE FUNCTION FN_HORA()
+RETURNS CHAR(8)
+AS
+BEGIN
+    RETURN CONVERT(CHAR(8), GETDATE(), 108);
+END; 
+SELECT dbo.FN_HORA();
+
+--b. Fecha: una función que devuelva la fecha en el formato AAAMMDD (en
+--carácter de 8), a partir de una fecha que le ingresa como parámetro
+--(ingresa como tipo fecha).
+CREATE FUNCTION FN_FECHA
+(@FECHA DATE)
+RETURNS CHAR(8)
+BEGIN 
+RETURN CONVERT(CHAR(8), @FECHA, 112)
+END
+
+SELECT DBO.FN_FECHA('2024-10-27')
+
+--c. Dia_Habil: función que devuelve si un día es o no hábil (considere como
+--días no hábiles los sábados y domingos). Debe devolver 1 (hábil), 0 (no
+--hábil)
+CREATE FUNCTION FN_HABIL
+(@FECHA DATE)
+RETURNS INT
+BEGIN
+DECLARE @DIA VARCHAR(10)
+SET @DIA = DATENAME(WEEKDAY,@FECHA)
+RETURN CASE WHEN LOWER(@DIA) = 'domingo' THEN 0
+			WHEN LOWER(@DIA) = 'sábado' THEN 0
+			ELSE 1 END
+END
+
+--7. Modifique la f(x) 1.c, considerando solo como día no hábil el domingo.
+ALTER FUNCTION FN_HABIL
+(@FECHA DATE)
+RETURNS INT
+BEGIN
+DECLARE @DIA VARCHAR(10)
+SET @DIA = DATENAME(WEEKDAY,@FECHA)
+RETURN CASE WHEN LOWER(@DIA) = 'domingo' THEN 0
+			ELSE 1 END
+END
+
+--10. Programar funciones que permitan realizar las siguientes tareas:
+--a. Devolver una cadena de caracteres compuesto por los siguientes datos:
+--Apellido, Nombre, Telefono, Calle, Altura y Nombre del Barrio, de un
+--determinado cliente, que se puede informar por codigo de cliente o
+--email.
+
+
+--b. Devolver todos los artículos, se envía un parámetro que permite ordenar
+--el resultado por el campo precio de manera ascendente (‘A’), o
+--descendente (‘D’).
+
+--c. Crear una función que devuelva el precio al que quedaría un artículo en
+--caso de aplicar un porcentaje de aumento pasado por parámetro.
+
 
 
 
@@ -245,3 +398,20 @@ return @edad
 end;
 
 select dbo.f_edad_validado('12/12/2000') as 'Edad';
+
+------------------------------------------------------------------------------------------
+-- Crear una función que devuelva el codigo del articulo con mayor stock 
+create function f_ofertas_articulos
+(@precioInf int = 0, @precioSup int = 1000000)
+returns int
+as
+begin
+declare @resultado int
+Select top 1 @resultado = cod_articulo
+from articulos
+WHERE pre_unitario between @precioInf and @precioSup
+order by stock desc
+return @resultado
+end;
+
+select dbo.f_ofertas_articulos(1500, 4000) 'Cod Articulo'
